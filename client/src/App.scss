@@ -1,0 +1,42 @@
+//@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Peralta&display=swap');
+
+$antiFlash: #ECECEC;
+$charcoal: #394053;
+$vistaBlue: #89AAE6;
+
+.App {
+  text-align: center;
+}
+
+h1 {
+  color: $charcoal;
+}
+
+body {
+  margin: 0;
+  font-family: 'Peralta';
+  font-size: 36px;
+  text-align: center;
+  background: $antiFlash;
+  overflow: hidden;
+}
+
+button {
+  background-color: $vistaBlue;
+  color: $antiFlash;
+  font-family:'Peralta';
+  margin: 5px;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+input {
+  font-family: 'Peralta';
+  color: $charcoal;
+  padding: 12px 20px;
+  border: 2px solid $vistaBlue;
+  border-radius: 4px;
+}
