@@ -17,18 +17,6 @@ const io = new Server(server, {
 
 const rooms = {};
 
-function calculateWinner(choice1, choice2) {
-    if (choice1 === choice2) {
-        return 'Draw!'
-    }
-    else if (choice1 > choice2) {
-        return 'Player 1 wins!'
-    }
-    else {
-        return 'Player 2 wins!'
-    }
-}
-
 function extractUniqueVariables(e) {
     const count = new Set()
     for (const character of e) {
@@ -48,7 +36,7 @@ function handleDiceRolls(repeat) {
     return newRolls
 }
 
-let initialRolls = handleDiceRolls(10);
+var initialRolls = handleDiceRolls(10);
 
 io.on("connection", (socket) => {
     console.log(`User connected ${socket.id}`)
@@ -57,37 +45,100 @@ io.on("connection", (socket) => {
     })
     socket.on('createRoom', () => {
         const uniqueRoomID = Math.random().toString(36).substring(2, 7);
-        rooms[uniqueRoomID] = [{ id: socket.id, equation: "3x^2", answer: 0, status: false }];
+        rooms[uniqueRoomID] = [{ id: socket.id, equation: "2a+b", answer: null, assignments: {}, sabotaged: {}, preview: null, final: null, status: false, result: null }];
         socket.join(uniqueRoomID)
-        console.log(rooms)
+        //console.log(rooms)
         socket.emit('roomCreated', uniqueRoomID)
     })
     socket.on('joinRoom', (roomCode) => {
         if (rooms[roomCode] && !rooms[roomCode].some(player => player.id === socket.id)) {
             socket.join(roomCode)
-            rooms[roomCode].push({ id: socket.id, equation: "569x", answer: 0, status: false })
+            rooms[roomCode].push({ id: socket.id, equation: "2a+b", answer: null, assignments: {}, sabotaged: {}, preview: null, final: null, status: false, result: null })
             socket.emit('playerJoined')
             socket.to(roomCode).emit('playerJoined')
-            console.log(rooms)
+            //console.log(rooms)
         }
     })
     socket.on('playerReady', (roomId, submittedEquation) => { //equation has been constructed
         const player = rooms[roomId].find(p => p.id === socket.id)
+        const opponent = rooms[roomId].find(p => p.id != socket.id)
         if (player) {
             console.log(player.id + ' is ready.')
             player.equation = submittedEquation
-            let count = extractUniqueVariables(player.equation).size + 1
-            let temp = initialRolls.slice(0, count)
-            io.to(player.id).emit('pickVariables', temp)
+            let extractedVars = extractUniqueVariables(player.equation)
+            let count = extractedVars.size + 1
+            let temp = initialRolls.slice(0, count) //get rolls equal to variable count
+            io.to(player.id).emit('pickDiceRolls', temp)
+            //io.to(opponent.id).emit('opponentVars', [...extractedVars])
+            socket.broadcast.to(roomId).emit('opponentVars', [...extractedVars])
             player.status = true
         }
         if (rooms[roomId].every(p => p.status == true)) {
-            io.to(roomId).emit('initiateCombat');
+            io.to(roomId).emit('initiateCombat'); //moved here
             initialRolls = handleDiceRolls(10);
             rooms[roomId].forEach(p => p.status = false);
         }
     })
+    socket.on('playerAssigned', (roomId, randomRolls, uniqueVariables) => {
+        const player = rooms[roomId].find(p => p.id === socket.id)
+        const opponent = rooms[roomId].find(p => p.id != socket.id)
+        if (player) {
+            const sabotageVariable = uniqueVariables.pop();
+            const sabotageValue = randomRolls.pop();
+            const pendingAssignment = Object.fromEntries(uniqueVariables.map((key, index) => [String(key), randomRolls[index]]))
+            const pendingSabotage = {}
+            pendingSabotage[sabotageVariable] = sabotageValue
+            player.assignments = pendingAssignment
+            player.status = true
+            opponent.sabotaged = pendingSabotage
+        }
+        if (rooms[roomId].every(p => p.status == true)) {
+            rooms[roomId].forEach(p => {
+                var base = p.equation
+                for (var key of Object.keys(p.assignments)) { //before
+                    base = base.replaceAll(String(key), `(${p.assignments[key]})`)
+                }
+                p.preview = base
+                var evaluateThis = p.equation
+                for (var key of Object.keys(p.sabotaged)) { //sabotage
+                    evaluateThis = evaluateThis.replaceAll(String(key), `(${p.sabotaged[key]})`)
+                }
+                for (var key of Object.keys(p.assignments)) { //non-sabotage
+                    evaluateThis = evaluateThis.replaceAll(String(key), `(${p.assignments[key]})`)
+                }
+                p.final = evaluateThis
+                p.answer = evaluate(evaluateThis);
+                
+            })
+            if (player.answer === opponent.answer) {
+                player.result = "Tie!"
+                opponent.result = "Tie!"
+            }
+            else if (player.answer > opponent.answer) {
+                player.result = "Victory!"
+                opponent.result = "Defeat!"
+            }
+            else {
+                player.result = "Defeat!"
+                opponent.result = "Victory!"
+            }
+            io.to(roomId).emit('roundResults', rooms[roomId])
+            io.to(roomId).emit('initiateCalculations');
+            //console.log(rooms[roomId])
+            //include previous equation
+            rooms[roomId].forEach(p => {
+                p.assignments = {};
+                p.sabotaged = {};
+                p.status = false;
+                p.preview = null;
+                p.final = null;
+                p.answer = null;
+                p.result = null;
+            });
+        }
 
+
+    })
     socket.on('playerChoice', (roomId, playerChoice) => {
         const player = rooms[roomId].find(p => p.id === socket.id)
         if (player) {
