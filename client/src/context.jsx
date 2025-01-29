@@ -4,8 +4,6 @@ import io from 'socket.io-client';
 
 const SocketContext = createContext();
 
-export const useSocket = () => useContext(SocketContext);
-
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
@@ -23,4 +21,8 @@ export const SocketProvider = ({ children }) => {
       {children}
     </SocketContext.Provider>
   )
+}
+
+export const useSocket = () => {
+  return useContext(SocketContext);
 }
