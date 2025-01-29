@@ -2,15 +2,19 @@ import React, { CSSProperties } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import Tile from "./Tile";
 
-interface Item {
-    id: number,
-    content: string;
+interface ItemProps {
+    itemID: string,
+    name: string,
+    icon: string,
+    description: string,
+    rarity: string,
+    cost: number
 }
 
 interface DroponentProps {
     dropID: string;
     style?: CSSProperties;
-    list: Item[] | number[];
+    list: ItemProps[] | number[];
     backgroundText: string;
     prefix: string;
     slotCount: string[];
@@ -24,17 +28,17 @@ const Droponent: React.FC<DroponentProps> = ({ dropID, style, list, backgroundTe
                     <div style={style} ref={provided.innerRef} {...provided.droppableProps}>
                         {list.map((entry, index) => {
                             if (typeof entry === 'object') {
-                                return <Tile unique={`${prefix}-${entry.id}`} text={entry.content} index={index} key={`${prefix}-${entry.id}`} />
+                                return <Tile unique={entry.itemID} text={entry.icon} index={index} key={entry.itemID} />
                             }
                             else {
                                 return <Tile unique={`${prefix}-${entry}`} text={String(entry)} index={index} key={`${prefix}-${entry}`} />
-                            }
+                            } //remove?
                         })}
                         {provided.placeholder}
                     </div>
                     <div className="position" >
-                        {slotCount.map(item => (
-                            <div className="square" key={item}>{item}</div>
+                        {slotCount.map((item, index) => (
+                            <div className="square" key={`${item}-${index}`}>{item}</div>
                         ))}
                     </div>
                     <div className="bg-text">{backgroundText}</div>
