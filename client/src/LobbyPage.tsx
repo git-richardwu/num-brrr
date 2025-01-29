@@ -23,6 +23,7 @@ export default function LobbyPage() {
     return (
         <div>
             <h1>{roomId}</h1>
+            <button onClick={() => navigator.clipboard.writeText(roomId!)}>Copy Room Code!</button>
             <h1>Waiting for opponent...</h1>
         </div>
     );
