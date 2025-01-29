@@ -3,7 +3,10 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const { evaluate, parse, randomInt } = require('mathjs');
+const { evaluate, parse, randomInt, re } = require('mathjs');
+const { v4: uuidv4 } = require('uuid');
+const Player = require('./Player.js');
+const { ItemPool, RelicPool, weights } = require('./Pool');
 
 app.use(cors());
 
@@ -38,26 +41,54 @@ function handleDiceRolls(repeat) {
 
 var initialRolls = handleDiceRolls(10);
 
+function pickRandomWares(pool, weights) {
+    const totalWeight = pool.reduce((total, item) => total + weights[item.rarity], 0)
+    const randomWeight = Math.random() * totalWeight
+    let tempWeight = 0
+    for (const item of pool) {
+        tempWeight += weights[item.rarity]
+        if (randomWeight < tempWeight){
+            return item
+        }
+    }
+}
+
+function constructWareList(items, weights, amount) {
+    const res = []
+    for (let i = 0; i < amount; i++){
+        res.push(pickRandomWares(items, weights))
+    }
+    return res
+}
+
 io.on("connection", (socket) => {
     console.log(`User connected ${socket.id}`)
     socket.on('disconnect', () => {
         console.log(`User ${socket.id} has disconnected`)
+
     })
     socket.on('createRoom', () => {
         const uniqueRoomID = Math.random().toString(36).substring(2, 7);
-        rooms[uniqueRoomID] = [{ id: socket.id, equation: "2a+b", answer: null, assignments: {}, sabotaged: {}, preview: null, final: null, status: false, result: null }];
+        rooms[uniqueRoomID] = [new Player(socket.id)];
         socket.join(uniqueRoomID)
-        //console.log(rooms)
         socket.emit('roomCreated', uniqueRoomID)
     })
-    socket.on('joinRoom', (roomCode) => {
-        if (rooms[roomCode] && !rooms[roomCode].some(player => player.id === socket.id)) {
-            socket.join(roomCode)
-            rooms[roomCode].push({ id: socket.id, equation: "2a+b", answer: null, assignments: {}, sabotaged: {}, preview: null, final: null, status: false, result: null })
+    socket.on('joinRoom', (roomId) => {
+        if (rooms[roomId] && !rooms[roomId].some(player => player.id === socket.id)) {
+            socket.join(roomId)
+            rooms[roomId].push(new Player(socket.id))
             socket.emit('playerJoined')
-            socket.to(roomCode).emit('playerJoined')
-            //console.log(rooms)
+            socket.to(roomId).emit('playerJoined')
         }
+    })
+    socket.on('fetchBuild', (roomId) => {
+        const emitter = rooms[roomId].find(p => p.id === socket.id)
+        const deconstructedEq = emitter.deconstructed
+        const playerInventory = emitter.inventory
+        const playerItems = emitter.relics
+        const playerCoins = emitter.coins
+        io.to(emitter.id).emit('updateState', deconstructedEq, playerInventory, playerItems, playerCoins)
+
     })
     socket.on('playerReady', (roomId, submittedEquation) => { //equation has been constructed
         const player = rooms[roomId].find(p => p.id === socket.id)
@@ -108,7 +139,7 @@ io.on("connection", (socket) => {
                 }
                 p.final = evaluateThis
                 p.answer = evaluate(evaluateThis);
-                
+
             })
             if (player.answer === opponent.answer) {
                 player.result = "Tie!"
@@ -117,10 +148,18 @@ io.on("connection", (socket) => {
             else if (player.answer > opponent.answer) {
                 player.result = "Victory!"
                 opponent.result = "Defeat!"
+                opponent.loseHealth();
+                if (opponent.health === 0) {
+                    console.log('Yay')
+                }
             }
             else {
                 player.result = "Defeat!"
                 opponent.result = "Victory!"
+                player.loseHealth();
+                if (player.health === 0) {
+                    console.log('Boo')
+                }
             }
             io.to(roomId).emit('roundResults', rooms[roomId])
             io.to(roomId).emit('initiateCalculations');
@@ -135,8 +174,8 @@ io.on("connection", (socket) => {
                 p.answer = null;
                 p.result = null;
             });
+            console.log(rooms[roomId])
         }
-
 
     })
     socket.on('playerChoice', (roomId, playerChoice) => {
@@ -157,6 +196,40 @@ io.on("connection", (socket) => {
             //reset score/equation
         }
     });
+    socket.on('generateWares', (roomId) => {
+        const player = rooms[roomId].find(p => p.id === socket.id)
+        const part1 = constructWareList(ItemPool, weights, 6);
+        const part2 = constructWareList(RelicPool, weights, 3);
+        const fullList = part1.concat(part2)
+        io.to(player.id).emit('updateWares', fullList);
+
+    })
+
+    socket.on('pendingPurchase', (roomId, item, disableIndex) => {
+        const player = rooms[roomId].find(p => p.id === socket.id)
+        if (player) {
+            if (player.coins >= item.cost) {
+                player.coins -= item.cost
+                if (item.itemID[0] == "I") {
+                    player.relics.push(item)
+                    io.to(player.id).emit('purchasedRelic', player.relics);
+                    io.to(player.id).emit('toggleButton', disableIndex)
+                    io.to(player.id).emit('updateCoinCount', player.coins);
+                }
+                // insert condition if max amount of relic
+                else if (item.itemID[0] == '#') {
+                    player.inventory.push(item)
+                    io.to(player.id).emit('purchasedTile', player.inventory);
+                    io.to(player.id).emit('toggleButton', disableIndex)
+                    io.to(player.id).emit('updateCoinCount', player.coins);
+                }
+            }
+            else {
+                io.to(player.id).emit('failedPurchase', "Insufficient 🪙s!");
+            }
+        }
+
+    })
 });
 
 app.get("/api", (req, res) => {
