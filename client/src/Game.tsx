@@ -1,66 +1,126 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from './context';
 import { useParams } from 'react-router-dom';
-import Area from './components/Area';
+import BuildPage from './components/BuildPage';
 import CombatPage from './components/CombatPage';
+import CalculationPage from './components/CalculationPage';
+import { useNavigate } from 'react-router-dom';
 import { evaluate, parse, random, randomInt } from 'mathjs';
+
+type GameStates = 'build' | 'assignment' | 'calculate';
+
+interface ItemProps {
+    itemID: string,
+    name: string,
+    icon: string,
+    description: string,
+    rarity: string,
+    cost: number
+}
+
+
+export interface PlayerAssignments {
+    variableLetter: string,
+    numberValue: number
+}
+
+export interface PlayerStats {
+    id: string,
+    equation: string,
+    answer: number,
+    assignments: PlayerAssignments,
+    sabotaged: PlayerAssignments,
+    preview: string,
+    final: string,
+    status: boolean,
+    result: string
+}
 
 export default function Game() {
     const { socket } = useSocket();
+    // const [socketStatus, setSocketStatus] = useState(false);
     const { roomId } = useParams<{ roomId: string }>();
-    const [toggle, setToggle] = useState<boolean>(false);
-    //const [choice, setChoice] = useState<number>(0);
+    const navigate = useNavigate();
+    const [gameState, setGameState] = useState<GameStates>('build');
+    const [playerProp, setPlayerProp] = useState<PlayerStats[]>([]);
+    const [currentBuild, setCurrentBuild] = useState<ItemProps[]>([]);
+    const [currentInventory, setCurrentInventory] = useState<ItemProps[]>([]);
+    const [currentRelics, setCurrentRelics] = useState<ItemProps[]>([]);
+    const [currentCoins, setCurrentCoins] = useState<number>(0);
     const [dice, setDice] = useState<number[]>([]);
+    const [opponentVariables, setOpponentVariables] = useState<string[]>([]);
     const [equationData, setEquationData] = useState<string>("$")
-
-    const sampleData = [{content: 'a', id: 1}, {content: '*', id: 2}, {content: '-', id: 3}];
-    const sampleInventory = [{content: '2', id: 4}, {content: '+', id: 5}, {content: 'c', id: 6}, {content: 'c', id: 7}];
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        // socket.on('gameResult', (result: string) => {
-        //     setResult(result);
-        // });
-        // return () => {
-        //     socket.off('gameResult')
-        // }
-        socket.on('pickVariables', (variables: number[]) => {
-            setDice(variables);
+        if (roomId != undefined) {
+            socket.emit('fetchBuild', roomId);
+        }
+        socket.on('updateState', (deconstructedEq: ItemProps[], playerInventory: ItemProps[], playerItems: ItemProps[], playerCoins: number) => {
+            setCurrentBuild(deconstructedEq);
+            setCurrentInventory(playerInventory);
+            setCurrentRelics(playerItems);
+            setCurrentCoins(playerCoins);
+            setLoading(false);
         })
-        socket.on('initiateCombat', () => {
-            setToggle(true);
-        });
         return () => {
-            socket.off('pickVariables');
-            socket.off('initiateCombat')
-            //socket.disconnect();
-         }
+            socket.off('fetchBuild');
+        };
     }, [])
 
-    function handleDataFromArea(submittedEquation: string) { //should probably pass the whole object (InventoryData) in the future
+    useEffect(() => {
+        socket.on('pickDiceRolls', (dies: number[]) => {
+            setDice(dies);
+        })
+        socket.on('opponentVars', (variables: string[]) => {
+            setOpponentVariables(variables)
+            //console.log(variables);
+        })
+        socket.on('roundResults', (preview: PlayerStats[]) => {
+            //console.log(preview)
+            setPlayerProp(preview);
+            //setYourAssignments(assign);
+        })
+        socket.on('initiateCombat', () => {
+            setGameState('assignment');
+        });
+        socket.on('initiateCalculations', () => {
+            socket.emit('fetchBuild', roomId);
+            setGameState('calculate');
+        })
+        // socket.on('disconnect', () => {
+        //     console.log('here')
+        //     setSocketStatus(true);
+        // })
+        // if (socketStatus) {
+        //     navigate('/');
+        // }
+        return () => {
+            socket.off('pickDiceRolls');
+            socket.off('initiateCombat')
+            //socket.disconnect();
+        }
+    }, [navigate, socket])
+
+    function handleDataFromBuildPage(submittedEquation: string) { //should probably pass the whole object (InventoryData) in the future
         setEquationData(submittedEquation)
         socket.emit('playerReady', roomId, submittedEquation);
     }
 
-    useEffect(() => {
-        console.log(equationData)
-    }, [equationData])
-
+    function newRound(gameState: string) {
+        if (gameState === 'build'){
+            setGameState('build');
+        }
+    }
     return (
         <div>
-            <div>
-            {toggle ? (
-                        <div>
-                            <h2>Calculation</h2>
-                            <h3>Game Result: {toggle}</h3>
-                            <CombatPage equation={equationData} rolls={dice}></CombatPage>
-                            <button onClick={() => setToggle(false)}>Play Again</button>
-                        </div>
-                    ) : (
-                        <div>
-                            <Area id="equationConstruct" content={sampleData} inventory={sampleInventory} sendDataToGame={handleDataFromArea} />
-                        </div>
-                    )}
-            </div>
+            {loading ? <div>Loading...</div> :
+                <div>
+                    {gameState === 'build' && <BuildPage id="equationConstruct" content={currentBuild!} inventory={currentInventory} relics={currentRelics} coins={currentCoins} sendDataToGame={handleDataFromBuildPage} roomId={roomId!} />}
+                    {gameState === 'assignment' && <CombatPage equation={equationData} rolls={dice} opponentVariables={opponentVariables}></CombatPage>}
+                    {gameState === 'calculate' && <CalculationPage stats={playerProp} changeGameState={newRound} socketID={socket.id} />}
+                </div>
+            }
         </div>
     )
 }
