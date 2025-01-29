@@ -5,7 +5,7 @@ import { useSocket } from './context';
 // const socket = io("http://localhost:3001");
 
 export default function LandingPage() {
-  const [roomCode, setRoomCode] = useState<string>("")
+  const [roomId, setRoomId] = useState<string>("")
   const { socket } = useSocket();
   const navigate = useNavigate();
 
@@ -20,9 +20,9 @@ export default function LandingPage() {
   };
   const joinRoom = () => {
     if (socket) {
-      socket.emit('joinRoom', roomCode)
+      socket.emit('joinRoom', roomId);
       socket.on('playerJoined', () => {
-        navigate(`/game/${roomCode}`);
+        navigate(`/game/${roomId}`);
       });
     }
   }
@@ -32,7 +32,7 @@ export default function LandingPage() {
       <h1>numBRRR</h1>
       <button onClick={createRoom}>Create Room</button>
       <div>
-        <input onChange={(e) => setRoomCode(e.target.value)} placeholder='Room Code' />
+        <input onChange={(e) => setRoomId(e.target.value)} placeholder='Room Code' />
         <button onClick={joinRoom}>Join Room</button>
       </div>
     </div>
