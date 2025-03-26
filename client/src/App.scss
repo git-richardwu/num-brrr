@@ -19,16 +19,17 @@ body {
   font-size: 36px;
   text-align: center;
   background: $antiFlash;
-  overflow: hidden;
+  overflow-x: hidden;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  
 }
 
 button {
-  background-color: $vistaBlue;
+  background-color: $charcoal;
   color: $antiFlash;
   font-family:'Peralta';
   margin: 5px;
@@ -36,6 +37,7 @@ button {
   font-size: 20px;
   border-radius: 15px;
   cursor: pointer;
+  z-index: 6;
 }
 
 input {
