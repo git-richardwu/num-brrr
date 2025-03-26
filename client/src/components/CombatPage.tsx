@@ -2,19 +2,38 @@ import React, { useState, useEffect } from 'react';
 import Droponent from './Droponent';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../context';
-import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import Tippy from '@tippyjs/react';
+import { AnimatePresence, motion, spring } from "motion/react"
 
-type dropType = number
-
-interface combatProps {
-    equation: string,
-    opponentVariables: string[],
-    rolls: number[] //need to pass the index again
+interface ItemProps {
+    itemID: string;
+    name: string;
+    icon: string;
+    description: string;
+    rarity: string;
+    cost: number;
 }
 
-//when there are more than 3 variables in play, players can choose to insert to insert a number for their opponent
+interface ReceiptProps {
+    before: number;
+    buff: ItemProps;
+    after: number;
+}
 
-const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables }) => {
+interface combatProps {
+    equation: string;
+    opponentVariables: string[];
+    rolls: number[];
+    receipt: ReceiptProps[];
+    buffed: string;
+}
+interface lookUp<T> {
+    [key: string]: T
+}
+
+
+const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables, receipt, buffed }) => {
     const { socket } = useSocket();
     const { roomId } = useParams<{ roomId: string }>();
     const [randomRolls, setRandomRolls] = useState<number[]>(rolls);
@@ -24,71 +43,101 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables 
     const [isDisabled, setIsDisabled] = useState(false);
     //previous equation
 
-    const extractNumofVar = (e: string) => {
-        const countVar = new Set<string>()
+    useEffect(() => {
+        extractNumofVar(equation);
+    }, []);
+
+    function extractNumofVar(e: string) {
+        const countVar = new Set<string>();
         for (const character of e) {
             if (/^[a-zA-Z]$/.test(character)) {
-                countVar.add(character)
+                countVar.add(character);
             }
         }
-        const temp = Array.from(countVar)
-        setUniqueVariables(temp)
-        //updateSetLength(countVar.size)
+        const temp = Array.from(countVar);
+        setUniqueVariables(temp);
     }
 
-    const handleClick = (option: string) => {
+    function handleClick(option: string) {
         setSabotageVar(option);
         var temp = [...uniqueVariables];
         temp.push(option);
         setUniqueVariables(temp);
     }
 
-    useEffect(() => {
-        extractNumofVar(equation)
-    }, []);
+    const colors: lookUp<string> = {
+        'common': "#80EF80",
+        'rare': '#1E96FC',
+        'epic': '#C74FE8',
+        'legendary': '#FDB833'
+    }
 
     function confirmSelection() { //should probably pass the whole object (InventoryData) in the future
-        setIsDisabled(true)
-        setButtonMsg("WAITING FOR OPPONENT")
+        setIsDisabled(true);
+        setButtonMsg("WAITING FOR OPPONENT");
+        //convert ItemProps[] to numberp[]
         socket.emit('playerAssigned', roomId, randomRolls, uniqueVariables);
     }
 
-    const onDragEnd = ({ source, destination }: DropResult) => {
+    function onDragEnd({ source, destination }: DropResult) {
         if (destination === undefined || destination == null) {
-            return
+            return;
         }
         // if current count is greater than setLength, bounce
         if (destination.droppableId === source.droppableId && source.index === destination.index) {
             return
         }
         if (destination.droppableId === source.droppableId) {
-            const elements = [...randomRolls]
-            const [removed] = elements.splice(source.index, 1)
-            elements.splice(destination.index, 0, removed)
+            const elements = [...randomRolls];
+            const [removed] = elements.splice(source.index, 1);
+            elements.splice(destination.index, 0, removed);
             setRandomRolls(elements);
         }
     };
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div>{equation}</div>
+            <motion.div initial={{ opacity: 0 }} transition={{ duration: 1 }} animate={{ opacity: 1 }} style={{ backgroundColor: '#E3E3E3' }}>
+                <div>your initial equation: {equation}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', marginTop: '10px' }}>
+                    {receipt.length === 0 ? <div style={{color: 'grey'}}>no buffs applied :<span>&#40;</span></div> :
+                        <div style={{ maxHeight: '200px', borderRadius: '10px', backgroundColor: '#ECECEC', padding: "10px", overflowY: 'auto' }}>
+                    {receipt.map((item, index) => (
+                            <Tippy key={item.buff.itemID + index} content={<span>
+                                {item.buff.name}
+                                <hr />
+                                <span style={{ fontStyle: "oblique", color: colors[item.buff.rarity] }}>{item.buff.description}</span>
+                            </span>}>
+                                <div>{item.before} ➡️ {item.buff.icon} ➡️ {item.after}</div>
+                            </Tippy>
+                    ))}
+                    </div>
+                    }
+                </div>
+                <div>your buffed equation: {buffed}</div>
+            </motion.div>
+            <div>⬇️</div>
+            <AnimatePresence>
             {sabotageVar ? (
-                <div>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <div>assign your variables and sabotage one of your <span style={{color: '#F78888'}}>opponent's!</span></div>
+                    <br />
                     <Droponent dropID={"slots"} style={{
                         position: 'relative', display: 'flex', padding: '10px', minHeight: '110px', backgroundColor: '#89AAE6',
                         margin: '10px', borderRadius: '10px'
                     }}
                         list={randomRolls} backgroundText={"ASSIGN"} prefix={"D"} slotCount={uniqueVariables} />
-                    <button onClick={confirmSelection} disabled={isDisabled} style={{backgroundColor: isDisabled ? '#cad9f4' : '#89aae6'}}>{buttonMsg}</button>
-                </div>
+                    <button onClick={confirmSelection} disabled={isDisabled} className={`${isDisabled ? 'disabled' : ''}`}>{buttonMsg}</button>
+                </motion.div>
             ) :
                 <div>
-                    <div>Pick one of your opponent's variable to sabotage 💣</div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>Pick one of your opponent's variable to sabotage 💣</motion.div>
                     {opponentVariables.map(option => (
                         <button key={String(option)} className='sabotageButton' onClick={() => handleClick(option)}>{option}</button>
                     ))}
                 </div>
             }
+            </AnimatePresence>
 
             {/* <button onClick={submitEquation}>SUBMIT</button> */}
         </DragDropContext>
