@@ -22,7 +22,6 @@ interface ItemProps {
 type functionType = (value: string, decon: ItemProps[], relics: ItemProps[]) => void
 
 interface InventoryInterface {
-    id: string;
     content: ItemProps[];
     inventory: ItemProps[];
     relics: ItemProps[];
@@ -82,7 +81,7 @@ const levelWeights: levelWeightType = {
     },
 }
 
-const BuildPage: React.FC<InventoryInterface> = ({ id, content, inventory, relics, opEquation, opReceipt, coins, health, sendDataToGame, roomId, progress, level, cap, triggerError }) => {
+const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, opEquation, opReceipt, coins, health, sendDataToGame, roomId, progress, level, cap, triggerError }) => {
     const { socket } = useSocket();
     const [equationData, setequationData] = useState<ItemProps[]>(content);
     const [previewEquation, setPreviewEquation] = useState<string>('');
@@ -156,14 +155,6 @@ const BuildPage: React.FC<InventoryInterface> = ({ id, content, inventory, relic
         }
     }, [equationData])
 
-    function AnimatedCoin({ coin }: { coin: number }) {
-        return (
-            <motion.div key={coin} initial={{ y: -10 }} animate={{ y: 0 }} transition={{ type: spring }}>
-                🪙: {coin}
-            </motion.div>
-        )
-    }
-
     function onDragEnd({ source, destination }: DropResult) {
         if (destination === undefined || destination == null) { //do nothing
             return;
@@ -182,29 +173,20 @@ const BuildPage: React.FC<InventoryInterface> = ({ id, content, inventory, relic
             }
         }
         if (source.droppableId === 'equation' && destination.droppableId === 'inventory') {
-            setequationData(outdatedEquation => {
-                const updatedEquation = [...outdatedEquation];
-                const [removed] = updatedEquation.splice(source.index, 1);
-                setinventoryData(outdatedInventory => {
-                    const updatedInventory = [...outdatedInventory];
-                    updatedInventory.splice(destination.index, 0, removed);
-                    return updatedInventory;
-                })
-                return updatedEquation;
-            });
+            const updatedEquation = [...equationData];
+            const updatedInventory = [...inventoryData];
+            const [removed] = updatedEquation.splice(source.index, 1);
+            updatedInventory.splice(destination.index, 0, removed);
+            setequationData(updatedEquation);
+            setinventoryData(updatedInventory);
         }
         if (source.droppableId === 'inventory' && destination.droppableId === 'equation') {
-            setinventoryData(outdatedInventory => {
-                const updatedInventory = [...outdatedInventory];
-                const [removed] = updatedInventory.splice(source.index, 1);
-                setequationData(outdatedEquation => {
-                    const updatedEquation = [...outdatedEquation];
-                    updatedEquation.splice(destination.index, 0, removed);
-                    return updatedEquation;
-
-                })
-                return updatedInventory;
-            });
+            const updatedInventory = [...inventoryData];
+            const updatedEquation = [...equationData];
+            const [removed] = updatedInventory.splice(source.index, 1);
+            updatedEquation.splice(destination.index, 0, removed);
+            setequationData(updatedEquation);
+            setinventoryData(updatedInventory);
         }
     };
 
@@ -280,7 +262,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ id, content, inventory, relic
                     <div className={`${isDisabled ? 'disabled' : ''}`}>
                         <Relics relicList={relicData} updateOrder={setRelicData} sellRelic={sellRelic} />
                     </div>
-                    <AnimatedCoin coin={coinData} />
+                    <div>🪙: {coinData}</div>
                     <button className={`${isDisabled ? 'disabled' : ''}`} onClick={() => { refreshShop(2) }}>Reroll for 2 🪙</button>
                     <div>------------------</div>
                     <div>Level: {level}</div>
