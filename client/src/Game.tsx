@@ -226,7 +226,7 @@ export default function Game() {
                     {popUpDetails && <PopUp onClose={closePopUp} message={popUpDetails} />}
                     {showWarning && <PreventRefresh onClose={closeWarning} returnToLobby={redirectToLobby} />}
                     <AnimatePresence>
-                        {gameState === 'build' && <motion.div exit={{ opacity: 0 }}><BuildPage id="equationConstruct" content={currentBuild!} inventory={currentInventory} relics={currentRelics} opEquation={opPrevEquation} opReceipt={opponentIconReceipt} coins={currentCoins}
+                        {gameState === 'build' && <motion.div exit={{ opacity: 0 }}><BuildPage content={currentBuild} inventory={currentInventory} relics={currentRelics} opEquation={opPrevEquation} opReceipt={opponentIconReceipt} coins={currentCoins}
                             health={currentHealth} sendDataToGame={handleDataFromBuildPage} roomId={roomId!} progress={currentProgress} level={currentLevel} cap={currentCap} triggerError={setPopUpDetails} /></motion.div>}
                     </AnimatePresence>
                     <AnimatePresence>
