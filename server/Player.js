@@ -4,13 +4,13 @@ const Item = require('./Item');
 class Player {
     constructor(id) {
         this.id = id;
-        this.deconstructed = [new Item('#' + uuidv4(), '2', '2', 'drag me!', 'common', 3),
+        this.deconstructed = [new Item('#2' + uuidv4(), '2', '2', 'drag me!', 'common', 3),
         new Item('#a' + uuidv4(), 'a', 'a', 'var a', 'common', 3),
         new Item('#+' + uuidv4(), '+', '+', 'plus', 'common', 3),
         new Item('#b' + uuidv4(), 'b', 'b', 'var b', 'common', 3)]
         this.equation = '2a+b';
         this.buffedEquation = "";
-        this.inventory = [new Item('#' + uuidv4(), '2', '2', 'drag me!', 'common', 3),
+        this.inventory = [new Item('#2' + uuidv4(), '2', '2', 'drag me!', 'common', 3),
             new Item('#*' + uuidv4(), '*', '*', 'multiply', 'rare', 4),
             new Item('#c' + uuidv4(), 'c', 'c', 'var c', 'common', 3),
             new Item('#c' + uuidv4(), 'c', 'c', 'var c', 'common', 3)]
