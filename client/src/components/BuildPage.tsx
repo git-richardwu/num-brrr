@@ -245,7 +245,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             <button className="glossButton" onClick={() => setShowGlossary(!showGlossary)}>Glossary</button>
             {showGlossary && <Glossary onClose={closeGlossary} />}
             <div className="previewEquation">{previewEquation}</div>
-            <div style={{ flex: 1, display: 'grid', gridTemplateRows: "auto 2fr auto", gridTemplateColumns: "2fr 1fr 1fr", gap: "10px" }}>
+            <div style={{ display: 'grid', gridTemplateRows: "auto 2fr auto", gridTemplateColumns: "2fr 1fr 1fr", gap: "10px" }}>
                 <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ gridRow: "1 / 2", gridColumn: "1 / -1" }}>
                     <Droponent dropID={"equation"} style={{
                         position: 'relative', display: 'flex', flexWrap: 'wrap', padding: '10px', minHeight: '110px', backgroundColor: isValid ? '#97D8B2' : '#F78888',
@@ -261,35 +261,24 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                         wares={wareData!}
                         backgroundText={"SHOP"} coinCheck={coinData} roomId={roomId!} relicCount={relicData.length} />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.7, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', gridRow: "2 / 3", gridColumn: "2 / 3", backgroundColor: '#38A3A5', margin: '10px', borderRadius: '10px', padding: '10px' }}>
-                    <div>Health: {health}</div>
-                    <div className={`${isDisabled ? 'disabled' : ''}`}>
-                        <Relics relicList={relicData} updateOrder={setRelicData} sellRelic={sellRelic} />
-                    </div>
+                <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.7, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', gridRow: "2 / 3", gridColumn: "2 / 3", backgroundColor: '#38A3A5', margin: '10px', borderRadius: '10px', padding: '30px' }}>
+                    <div>Health: {healthData}</div>
                     <div>🪙: {coinData}</div>
                     <button className={`${isDisabled ? 'disabled' : ''}`} onClick={() => { refreshShop(2) }}>Reroll for 2 🪙</button>
                     <div>------------------</div>
                     <div>Level: {level}</div>
                     <div> {level === 5 ? 'Max Level Reached!' : `Exp: ${progress}/${cap}`}</div>
                     <button onClick={() => { emitLevelUp() }} className={`${isDisabled || level === 5 ? 'disabled' : ''}`}>Add 3 Exp for 3 🪙</button>
+                    <div className="bg-text small">RELICS</div>
                 </motion.div>
                 <div style={{ gridRow: '2 / 3', gridColumn: ' 3 / 4', display: 'grid', gridTemplateRows: '1fr 1fr', gap: '10px' }}>
-                    <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', margin: '10px', borderRadius: '10px', backgroundColor: '#DB5461', padding: '10px' }}>
-                        <div className="bg-text small">OPPONENT</div>
-
-                        <div>Last Seen Equation and Relics: {opEquation}</div>
-                        {opReceipt.length === 0 ? <div>[ ]</div> : <div style={{ display: 'flex', justifyContent: "center", alignItems: "center" }}>{opReceipt.map((item, index) => (
-                            <Tippy key={'O-' + item.itemID + index} content={<span>
-                                {item.name}
-                                <hr />
-                                <span style={{ fontStyle: "oblique" }}>{item.description}</span>
-                                <br />
-                            </span>} theme="light" animation="scale" delay={[200, 300]}>
-                                <div key={"R-" + index + item.itemID}>{item.icon}</div>
-                            </Tippy>
-                        ))}</div>}
+                    <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', margin: '10px', borderRadius: '10px', backgroundColor: '#DB5461', padding: '70px' }}>
+                        <div className="bg-text small">RELICS</div>
+                        <div className={`${isDisabled ? 'disabled' : ''}`}>
+                        <Relics relicList={relicData} updateOrder={setRelicData} sellRelic={sellRelic} />
+                        </div>   
                     </motion.div>
-                    <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ margin: '10px', borderRadius: '10px', backgroundColor: '#F0E2E7', padding: '10px' }}>
+                    <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ margin: '10px', borderRadius: '10px', backgroundColor: '#B3C0A4', padding: '10px' }}>
                         <div>Rarity Rates</div>
                         <div style={{ fontSize: 25 }}><span style={{ color: "#80EF80" }}>Common:</span>{" " + levelWeights[level]['common']}%</div>
                         <div style={{ fontSize: 25 }}><span style={{ color: "#1E96FC" }}>Rare:</span>{" " + levelWeights[level]['rare']}%</div>

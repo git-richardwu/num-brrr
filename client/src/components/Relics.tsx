@@ -47,10 +47,8 @@ const Relics: React.FC<relicProps> = ({ relicList, updateOrder, sellRelic }) => 
         <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId={"RELICS"} direction="horizontal">
                 {provided => (
-                    <div style={{ listStyle: "none", display: 'flex', justifyContent: "center", alignItems: "center" }} ref={provided.innerRef} {...provided.droppableProps}>
-                    Relics:&nbsp;
-                    
-                        {relicList.length === 0 ? <div>[ ]</div> : relicList.map((item, index) => (
+                    <div style={{ listStyle: "none", display: 'flex', justifyContent: "center", alignItems: "center", fontSize: 40 }} ref={provided.innerRef} {...provided.droppableProps}>
+                        {relicList.length === 0 ? <div style={{fontSize: 24}}>[ no relics equipped ]</div> : relicList.map((item, index) => (
                             <Draggable draggableId={item.itemID + index} key={item.itemID + index} index={index}>
                                 {provided => (
                                     <Tippy key={'T-' + item.itemID + index} interactive={true} content={<span>
