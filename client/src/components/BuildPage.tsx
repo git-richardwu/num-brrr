@@ -85,6 +85,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
     const { socket } = useSocket();
     const [equationData, setequationData] = useState<ItemProps[]>(content);
     const [previewEquation, setPreviewEquation] = useState<string>('');
+    const [healthData, setHealthData] = useState<number>(health)
     const [inventoryData, setinventoryData] = useState<ItemProps[]>(inventory);
     const [coinData, setCoinData] = useState<number>(coins)
     const [relicData, setRelicData] = useState<ItemProps[]>(relics);
@@ -109,6 +110,9 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             })
             socket.on('updateCoinCount', (newCoins: number) => {
                 setCoinData(newCoins);
+            })
+            socket.on('wrapHeal', (newHealth: number) => {
+                setHealthData(newHealth);
             })
         }
         return () => {

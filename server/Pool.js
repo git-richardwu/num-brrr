@@ -70,7 +70,7 @@ const ItemPool = [
 
 const RelicPool = [
     new Item("I-1", "Negative Nancy", '👧', "apply -1 to your final expression", 'rare', 3),
-    new Item("I-2", "Day Old Wrap", '🌯', "restore 1 HP", 'epic', 4),
+    new Item("I-2", "Day Old Wrap", '🌯', "restore 1 HP (can't exceed 5 HP)", 'epic', 4),
     new Item("I-3", "Molar No. 3", '🦷', "numbers between 17 and 21 are raised to the power of 4", 'rare', 3),
     new Item("I-4", "Unfinished Die", '🎲', "multiply final expression with number between 1-5", 'epic', 4),
     new Item("I-5", "Soap-Flavored Mint", '🍬', "abundant numbers are raised to the power of 2", 'rare', 3 ),

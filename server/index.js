@@ -422,8 +422,12 @@ io.on("connection", (socket) => {
                     if (item.itemID[0] == "I") {
                         if (player.relics.length < 5) {
                             //consumables
-                            if (item.name == "Day Old Wrap" && player.health < 5) {
-                                player.health += 1
+                            console.log(item.name)
+                            if (item.name === "Day Old Wrap") {
+                                if (player.health < 5) {
+                                    player.health += 1
+                                    socket.emit('wrapHeal', player.health);
+                                }
                             }
                             //non-consumables
                             else {
