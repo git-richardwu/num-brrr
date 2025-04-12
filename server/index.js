@@ -357,6 +357,18 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on('updateRecentValid', (roomId, updatedRecentValid) => {
+        try {
+            const player = rooms[roomId].find(p => p.id === socket.id)
+            if (player) {
+                player.recentValid = updatedRecentValid;
+            }
+        }
+        catch (error) {
+            console.log('Error message:', error);
+        }
+    });
+
     socket.on('updateRelicOrder', (roomId, updatedRelicOrder) => {
         try {
             const player = rooms[roomId].find(p => p.id === socket.id)
