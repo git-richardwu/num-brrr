@@ -416,46 +416,36 @@ io.on("connection", (socket) => {
     socket.on('pendingPurchase', (roomId, item, disableIndex) => {
         const player = rooms[roomId].find(p => p.id === socket.id);
         try {
-            if (player) {
-                if (player.coins >= item.cost) {
-                    player.coins -= item.cost;
-                    if (item.itemID[0] == "I") {
-                        if (player.relics.length < 5) {
-                            //consumables
-                            console.log(item.name)
-                            if (item.name === "Day Old Wrap") {
-                                if (player.health < 5) {
-                                    player.health += 1
-                                    socket.emit('wrapHeal', player.health);
-                                }
-                            }
-                            //non-consumables
-                            else {
-                                player.relics.push(item);
-                                socket.emit('purchasedRelic', player.relics);
-                            }
-                            socket.emit('toggleButton', disableIndex);
-                            socket.emit('updateCoinCount', player.coins);
-                        }
-                        else {
-                            io.to(player.id).emit('createErrorMsg', "Relic Limit Reached!");
-
-                        }
-                    }
-                    else if (item.itemID[0] == '#') {
-                        item.itemID += uuidv4();
-                        player.inventory.push(item);
-                        io.to(player.id).emit('purchasedTile', player.inventory);
-                        io.to(player.id).emit('toggleButton', disableIndex)
-                        io.to(player.id).emit('updateCoinCount', player.coins);
+            if (item.cost > player.coins) {
+                io.to(player.id).emit('createErrorMsg', "Insufficient 🪙s!");
+                return;
+            }
+            if (player.relics.length >= 5 && item.itemID[0] == "I" && item.name !== "Day Old Wrap") {
+                io.to(player.id).emit('createErrorMsg', "Relic Limit Reached!");
+                return;
+            }
+            player.coins -= item.cost;
+            if (item.itemID[0] == "I") {
+                if (item.name === "Day Old Wrap") {
+                    if (player.health < 5) {
+                        player.health += 1
+                        socket.emit('wrapHeal', player.health);
                     }
                 }
                 else {
-                    io.to(player.id).emit('createErrorMsg', "Insufficient 🪙s!");
+                    player.relics.push(item);
+                    socket.emit('purchasedRelic', player.relics);
                 }
+            } else if (item.itemID[0] == '#') {
+                item.itemID += uuidv4();
+                player.inventory.push(item);
+                io.to(player.id).emit('purchasedTile', player.inventory);
             }
+            io.to(player.id).emit('toggleButton', disableIndex)
+            io.to(player.id).emit('updateCoinCount', player.coins);
+            
         } catch (error) {
-            console.log('Error message:', error);
+                console.log('Error message:', error);
         }
     })
 

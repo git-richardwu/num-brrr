@@ -135,6 +135,8 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         let updated = equationData.map(obj => obj.name).join("")
         if (isValid) {
             updated += " ✔️";
+            socket.emit('updateRecentValid', roomId, updated)
+
         }
         else {
             updated += " ❌";

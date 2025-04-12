@@ -195,7 +195,6 @@ export default function Game() {
     function handleDataFromBuildPage(submittedEquation: string, deconstructedEquation: ItemProps[], submittedRelics: ItemProps[]) { //should probably pass the whole object (InventoryData) in the future
         setEquationData(submittedEquation);
         setCurrentRelics(submittedRelics);
-        console.log('hello ' + roomId)
         socket.emit('playerReady', roomId, submittedEquation, deconstructedEquation, submittedRelics);
     }
 
