@@ -97,7 +97,6 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
     function handleTimerCallBack(data: boolean) {
         var temp: string[] = [...uniqueVariables];
         if (data && sabotageVar === null) {
-            console.log(opponentVariables[0])
             setSabotageVar(opponentVariables[0]);
             temp.push(opponentVariables[0]);
             setUniqueVariables(temp);
