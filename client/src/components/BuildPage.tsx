@@ -166,7 +166,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             setisValid(false);
             return;
         }
-    }, [equationData])
+    }, [equationData, inventoryData, roomId, socket])
 
     function handleTimerCallBack(data: boolean) {
         if (data) {

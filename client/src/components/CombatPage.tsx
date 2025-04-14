@@ -5,7 +5,7 @@ import { useSocket } from '../context';
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import Tippy from '@tippyjs/react';
 import Timer from './Timer';
-import { AnimatePresence, motion, spring } from "motion/react"
+import { AnimatePresence, motion } from "motion/react"
 
 interface ItemProps {
     itemID: string;
@@ -45,7 +45,7 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
 
     useEffect(() => {
         extractNumofVar(equation);
-    }, []);
+    }, [equation]);
 
     function extractNumofVar(e: string) {
         const countVar = new Set<string>();
