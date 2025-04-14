@@ -113,10 +113,12 @@ export default function Game() {
                 setOpponentIconReceipt([]);
             })
             return () => {
-                socket.off('fetchBuild');
-                socket.off('updateState');
-                socket.off('updateProgress');
-                socket.off('clearData');
+                if (socket) {
+                    socket.off('fetchBuild');
+                    socket.off('updateState');
+                    socket.off('updateProgress');
+                    socket.off('clearData');
+                }
             };
         }
         else {
@@ -168,15 +170,17 @@ export default function Game() {
                 return () => clearTimeout(timer);
             })
             return () => {
-                socket.off('sendAssignData');
-                socket.off('initiateCombat');
-                socket.off('opponentVars');
-                socket.off('lastSeen');
-                socket.off('roundResults');
-                socket.off('initiateBuild');
-                socket.off('initiateCalculations');
-                socket.off('createErrorMsg');
-                socket.off('opponentDisconnect');
+                if (socket) {
+                    socket.off('sendAssignData');
+                    socket.off('initiateCombat');
+                    socket.off('opponentVars');
+                    socket.off('lastSeen');
+                    socket.off('roundResults');
+                    socket.off('initiateBuild');
+                    socket.off('initiateCalculations');
+                    socket.off('createErrorMsg');
+                    socket.off('opponentDisconnect');
+                }
             }
         }
     }, [navigate, socket, loading, gameState, roomId]);

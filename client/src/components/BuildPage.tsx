@@ -123,11 +123,13 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             })
         }
         return () => {
-            socket.off('updateWares');
-            socket.off('purchasedTile');
-            socket.off('purchasedRelic');
-            socket.off('updateCoinCount');
-            socket.off('updateSnapshots');
+            if (socket) {
+                socket.off('updateWares');
+                socket.off('purchasedTile');
+                socket.off('purchasedRelic');
+                socket.off('updateCoinCount');
+                socket.off('updateSnapshots');
+            }
         }
     }, [socket, roomId])
 
@@ -170,7 +172,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
 
     function handleTimerCallBack(data: boolean) {
         if (data) {
-            if  (!isValid){
+            if (!isValid) {
                 //update and restore to previous valid equation + inventory state
                 socket.emit('updateInventory', roomId, recentInventory);
             }
@@ -178,7 +180,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             const string = temp.join("")
             sendDataToGame(string, recentValid, relicData);
         }
-     }
+    }
 
     function onDragEnd({ source, destination }: DropResult) {
         if (destination === undefined || destination == null) { //do nothing
@@ -244,8 +246,10 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             }
         }
         return () => {
-            socket.off('newBalance');
-            socket.off('updateWares');
+            if (socket) {
+                socket.off('newBalance');
+                socket.off('updateWares');
+            }
         }
     }
 
@@ -261,7 +265,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         socket.emit('levelUp', roomId);
     }
 
-    
+
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -301,8 +305,8 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                     <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', margin: '10px', borderRadius: '10px', backgroundColor: '#DB5461', padding: '70px' }}>
                         <div className="bg-text small">RELICS</div>
                         <div className={`${isDisabled ? 'disabled' : ''}`}>
-                        <Relics relicList={relicData} updateOrder={setRelicData} sellRelic={sellRelic} />
-                        </div>   
+                            <Relics relicList={relicData} updateOrder={setRelicData} sellRelic={sellRelic} />
+                        </div>
                     </motion.div>
                     <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ margin: '10px', borderRadius: '10px', backgroundColor: '#B3C0A4', padding: '10px' }}>
                         <div>Rarity Rates</div>

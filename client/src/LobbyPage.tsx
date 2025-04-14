@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSocket } from './context';
 import { useNavigate } from 'react-router-dom';
@@ -13,19 +13,20 @@ export default function LobbyPage() {
     if (socket && roomId) {
       socket.emit('joinRoom', roomId);
     }
-  }, [socket])
+  }, [socket, roomId])
 
   useEffect(() => {
     if (socket) {
       socket.on('playerJoined', () => {
         navigate(`/game/${roomId}`);
       })
-
-      return () => {
-        socket.off('message');
-      };
     }
-  }, [socket]);
+    return () => {
+      if (socket) {
+        socket.off('playerJoined');
+      }
+    };
+  }, [socket, navigate, roomId]);
 
   return (
     <div>
