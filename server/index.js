@@ -1,18 +1,33 @@
+const dotenv = require("dotenv");
 const express = require('express');
 const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { evaluate, parse, randomInt, re, number, factorial } = require('mathjs');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Player = require('./Player.js');
 const Item = require('./Item');
 const { ItemPool, RelicPool, levelWeights, levelCap } = require('./Pool');
 const { isEven, isOdd, isAbundant, isPalindrome, isRepunit, isDeficient, isComposite,
     isPerfect, isSquare, isTriangle, isHappy, isNarcissistic, isPrime,
-    exponentByValAt } = require('./helper.js')
+    exponentByValAt } = require('./helper.js');
 
+dotenv.config();
 app.use(cors());
+
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../client/build")));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));
+    });
+
+} else {
+    app.get("/", (req, res) => {
+        res.send('API Running Successfully');
+    });
+}
 
 const server = http.createServer(app);
 
@@ -460,9 +475,9 @@ io.on("connection", (socket) => {
             }
             io.to(player.id).emit('toggleButton', disableIndex)
             io.to(player.id).emit('updateCoinCount', player.coins);
-            
+
         } catch (error) {
-                console.log('Error message:', error);
+            console.log('Error message:', error);
         }
     })
 
