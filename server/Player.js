@@ -21,7 +21,8 @@ class Player {
         this.exp = 0;
         this.health = 5;
         this.avoidDupes = new Set();
-        this.recentValid = '2a+b';
+        this.recentValid = [];
+        this.recentInventory = [];
         this.assignments = {};
         this.sabotaged = {};
         this.presabotage = null;

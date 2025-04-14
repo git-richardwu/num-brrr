@@ -7,7 +7,7 @@ import { useSocket } from '../context';
 import Shop from "./Shop";
 import Relics from "./Relics";
 import Glossary from "./Glossary";
-import Tippy from "@tippyjs/react";
+import Timer from "./Timer";
 import { motion, spring } from "motion/react"
 
 interface ItemProps {
@@ -94,6 +94,9 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
     const [buttonMsg, setButtonMsg] = useState<string>('SUBMIT')
     const [isValid, setisValid] = useState<boolean>(true);
     const [showGlossary, setShowGlossary] = useState<boolean>(false);
+    const [recentValid, setRecentValid] = useState<ItemProps[]>([]);
+    const [recentInventory, setRecentInventory] = useState<ItemProps[]>([]);
+
 
 
     useEffect(() => { //populate with items
@@ -114,12 +117,17 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             socket.on('wrapHeal', (newHealth: number) => {
                 setHealthData(newHealth);
             })
+            socket.on('updateSnapshots', (newRecentValid: ItemProps[], newRecentInventory: ItemProps[]) => {
+                setRecentValid(newRecentValid);
+                setRecentInventory(newRecentInventory);
+            })
         }
         return () => {
             socket.off('updateWares');
             socket.off('purchasedTile');
             socket.off('purchasedRelic');
             socket.off('updateCoinCount');
+            socket.off('updateSnapshots');
         }
     }, [socket, roomId])
 
@@ -135,8 +143,6 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         let updated = equationData.map(obj => obj.name).join("")
         if (isValid) {
             updated += " ✔️";
-            socket.emit('updateRecentValid', roomId, updated)
-
         }
         else {
             updated += " ❌";
@@ -154,12 +160,25 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         try {
             parse(tempString);
             setisValid(true);
+            socket.emit('updateRecentValid', roomId, equationData, inventoryData);
             return;
         } catch (error) {
             setisValid(false);
             return;
         }
     }, [equationData])
+
+    function handleTimerCallBack(data: boolean) {
+        if (data) {
+            if  (!isValid){
+                //update and restore to previous valid equation + inventory state
+                socket.emit('updateInventory', roomId, recentInventory);
+            }
+            const temp = recentValid.map(item => item.name)
+            const string = temp.join("")
+            sendDataToGame(string, recentValid, relicData);
+        }
+     }
 
     function onDragEnd({ source, destination }: DropResult) {
         if (destination === undefined || destination == null) { //do nothing
@@ -242,11 +261,16 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         socket.emit('levelUp', roomId);
     }
 
+    
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
             <button className="glossButton" onClick={() => setShowGlossary(!showGlossary)}>Glossary</button>
             {showGlossary && <Glossary onClose={closeGlossary} />}
             <div className="previewEquation">{previewEquation}</div>
+            <div className="timerStyle">
+                <Timer timeLimit={60} sendCompleteStatus={handleTimerCallBack} />
+            </div>
             <div style={{ display: 'grid', gridTemplateRows: "auto 2fr auto", gridTemplateColumns: "2fr 1fr 1fr", gap: "10px" }}>
                 <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ gridRow: "1 / 2", gridColumn: "1 / -1" }}>
                     <Droponent dropID={"equation"} style={{
@@ -269,7 +293,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                     <button className={`${isDisabled ? 'disabled' : ''}`} onClick={() => { refreshShop(2) }}>Reroll for 2 🪙</button>
                     <div>------------------</div>
                     <div>Level: {level}</div>
-                    <div> {level === 5 ? 'Max Level Reached!' : `Exp: ${progress}/${cap}`}</div>
+                    <div> {level === 5 ? 'Max Level' : `Exp: ${progress}/${cap}`}</div>
                     <button onClick={() => { emitLevelUp() }} className={`${isDisabled || level === 5 ? 'disabled' : ''}`}>Add 3 Exp for 3 🪙</button>
                     <div className="bg-text small">RELICS</div>
                 </motion.div>

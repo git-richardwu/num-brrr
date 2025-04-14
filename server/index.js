@@ -140,7 +140,6 @@ function applyBuffs(e, buffs) {
     let numbers = e.match(/[-+]?\d+/g)
     const modifiedNumbers = modifyNumbers(numbers, buffs, receipt)
     let res = e
-    console.log(modifiedNumbers)
     let idx = 0
     res = res.replace(/\d+/g, (match) => {
         const updatedNumber = modifiedNumbers[idx]
@@ -258,7 +257,7 @@ io.on("connection", (socket) => {
                 player.relics = submittedRelics
                 player.buffedEquation = buffed;
                 player.prevReceipt = receipt;
-                console.log(buffed)
+                // console.log(buffed)
 
                 let extractedVars = extractUniqueVariables(player.buffedEquation)
                 let count = extractedVars.size + 1
@@ -280,6 +279,9 @@ io.on("connection", (socket) => {
         try {
             const player = rooms[roomId].find(p => p.id === socket.id)
             const opponent = rooms[roomId].find(p => p.id != socket.id)
+            // console.log(player.id + ' ' + randomRolls)
+            // console.log(player.id + ' ' + uniqueVariables)
+
             if (player) {
                 const sabotageVariable = uniqueVariables.pop();
                 const sabotageValue = randomRolls.pop();
@@ -306,6 +308,7 @@ io.on("connection", (socket) => {
                         evaluateThis = evaluateThis.replaceAll(String(key), `(${p.assignments[key]})`)
                     }
                     p.final = evaluateThis
+                    // console.log(p.id + " " + evaluateThis);
                     p.answer = evaluate(evaluateThis);
 
                 })
@@ -339,7 +342,6 @@ io.on("connection", (socket) => {
                     p.answer = null;
                     p.result = null;
                 });
-                //console.log(rooms[roomId])
             }
         } catch (error) {
             console.log('Error message:', error);
@@ -357,12 +359,15 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on('updateRecentValid', (roomId, updatedRecentValid) => {
+    socket.on('updateRecentValid', (roomId, updatedRecentValid, updatedRecentInventory) => {
         try {
             const player = rooms[roomId].find(p => p.id === socket.id)
             if (player) {
                 player.recentValid = updatedRecentValid;
+                player.recentInventory = updatedRecentInventory;
             }
+            io.to(player.id).emit('updateSnapshots', player.recentValid, player.recentInventory);
+
         }
         catch (error) {
             console.log('Error message:', error);

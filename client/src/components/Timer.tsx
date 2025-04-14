@@ -23,6 +23,7 @@ const Timer: React.FC<TimeProps> = ({ timeLimit, sendCompleteStatus }) => {
 
     return (
         <div>
+            {seconds}
             <div style={{ width: '100%', backgroundColor: '#ddd', height: '10px', borderRadius: '10px' }}>
                 <div style={{
                     width: `${progress}%`,

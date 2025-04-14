@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useSocket } from '../context';
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import Tippy from '@tippyjs/react';
+import Timer from './Timer';
 import { AnimatePresence, motion, spring } from "motion/react"
 
 interface ItemProps {
@@ -41,7 +42,6 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
     const [buttonMsg, setButtonMsg] = useState<string>('SUBMIT')
     const [sabotageVar, setSabotageVar] = useState<string | null>(null);
     const [isDisabled, setIsDisabled] = useState(false);
-    //previous equation
 
     useEffect(() => {
         extractNumofVar(equation);
@@ -75,7 +75,6 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
     function confirmSelection() { //should probably pass the whole object (InventoryData) in the future
         setIsDisabled(true);
         setButtonMsg("WAITING FOR OPPONENT");
-        //convert ItemProps[] to numberp[]
         socket.emit('playerAssigned', roomId, randomRolls, uniqueVariables);
     }
 
@@ -95,8 +94,22 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
         }
     };
 
+    function handleTimerCallBack(data: boolean) {
+        var temp: string[] = [...uniqueVariables];
+        if (data && sabotageVar === null) {
+            console.log(opponentVariables[0])
+            setSabotageVar(opponentVariables[0]);
+            temp.push(opponentVariables[0]);
+            setUniqueVariables(temp);
+        }
+        socket.emit('playerAssigned', roomId, randomRolls, temp);
+     }
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
+            <div className="timerStyle">
+                <Timer timeLimit={30} sendCompleteStatus={handleTimerCallBack} />
+            </div>
             <motion.div initial={{ opacity: 0 }} transition={{ duration: 1 }} animate={{ opacity: 1 }} style={{ backgroundColor: '#E3E3E3' }}>
                 <div>your initial equation: {equation}</div>
                 <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', marginTop: '10px' }}>
@@ -138,8 +151,6 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
                 </div>
             }
             </AnimatePresence>
-
-            {/* <button onClick={submitEquation}>SUBMIT</button> */}
         </DragDropContext>
     )
 }
