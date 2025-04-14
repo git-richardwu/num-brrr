@@ -291,7 +291,6 @@ io.on("connection", (socket) => {
                 player.assignments = pendingAssignment
                 player.status = true
                 opponent.sabotaged = pendingSabotage
-                socket.broadcast.to(roomId).emit('lastSeen', player.prevReceipt, player.equation)
             }
             if (rooms[roomId].every(p => p.status == true)) {
                 rooms[roomId].forEach(p => {
