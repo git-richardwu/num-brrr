@@ -18,7 +18,7 @@ const PreventRefresh: React.FC<warningProps> = ({ onClose, returnToLobby }) => {
                 <p style={{ color: '#394053', fontSize: '15px'}}>
                    Refreshing the page will disconnect you from the match!
                 </p>
-                <button onClick={() => {toggleVisibility(false); onClose();}}>understood</button>
+                <button onClick={() => {toggleVisibility(false); onClose();}}>stay</button>
                 <button onClick={() => {toggleVisibility(false); returnToLobby();}}>leave game</button>
             </div>
             
