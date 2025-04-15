@@ -10,10 +10,7 @@ class Player {
         new Item('#b' + uuidv4(), 'b', 'b', 'var b', 'common', 3)]
         this.equation = '2a+b';
         this.buffedEquation = "";
-        this.inventory = [new Item('#2' + uuidv4(), '2', '2', 'drag me!', 'common', 3),
-            new Item('#*' + uuidv4(), '*', '*', 'multiply', 'rare', 4),
-            new Item('#c' + uuidv4(), 'c', 'c', 'var c', 'common', 3),
-            new Item('#c' + uuidv4(), 'c', 'c', 'var c', 'common', 3)]
+        this.inventory = []
         this.relics = [];
         this.coins = 10;
         this.prevReceipt = [];
