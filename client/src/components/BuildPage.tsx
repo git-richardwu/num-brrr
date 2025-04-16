@@ -318,7 +318,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                     <div>Level: {level}</div>
                     <div> {level === 5 ? 'Max Level' : `Exp: ${progress}/${cap}`}</div>
                     <button onClick={() => { emitLevelUp() }} className={`${isDisabled || level === 5 ? 'disabled' : ''}`}>Add 3 Exp for 3 🪙</button>
-                    <div className="bg-text small">RELICS</div>
+                    <div className="bg-text small">STATS</div>
                 </motion.div>
                 <div style={{ gridRow: '2 / 3', gridColumn: ' 3 / 4', display: 'grid', gridTemplateRows: '1fr 1fr', gap: '10px' }}>
                     <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', margin: '10px', borderRadius: '10px', backgroundColor: '#DB5461', padding: '70px' }}>
