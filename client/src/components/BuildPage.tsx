@@ -200,6 +200,10 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             }
         }
         if (source.droppableId === 'equation' && destination.droppableId === 'inventory') {
+            if (inventoryData.length >= 14) {
+                triggerError("Max Inventory Size Reached!");
+                return;
+            }
             const updatedEquation = [...equationData];
             const updatedInventory = [...inventoryData];
             const [removed] = updatedEquation.splice(source.index, 1);
@@ -208,6 +212,10 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             setinventoryData(updatedInventory);
         }
         if (source.droppableId === 'inventory' && destination.droppableId === 'equation') {
+            if (equationData.length >= 14) {
+                triggerError("Max Equation Size Reached!");
+                return;
+            }
             const updatedInventory = [...inventoryData];
             const updatedEquation = [...equationData];
             const [removed] = updatedInventory.splice(source.index, 1);

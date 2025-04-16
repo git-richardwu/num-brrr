@@ -452,6 +452,10 @@ io.on("connection", (socket) => {
                 io.to(player.id).emit('createErrorMsg', "Insufficient 🪙s!");
                 return;
             }
+            if (player.inventory.length >= 14 && item.itemID[0] == "#") {
+                io.to(player.id).emit('createErrorMsg', "Max Inventory Size Reached!");
+                return;
+            }
             if (player.relics.length >= 5 && item.itemID[0] == "I" && item.name !== "Day Old Wrap") {
                 io.to(player.id).emit('createErrorMsg', "Relic Limit Reached!");
                 return;
