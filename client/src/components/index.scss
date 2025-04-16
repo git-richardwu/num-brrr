@@ -27,11 +27,11 @@ $charcoal: #394053;
     opacity: 0.60;
     color: $antiFlash;
     position: absolute;
-    z-index: 2;
+    z-index: 1;
 }
 
 .bg-text.small {
-    z-index: 2;
+    z-index: 1;
     font-size: 55px;
 }
 
@@ -138,7 +138,7 @@ h5 {
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    z-index: 3;
+    z-index: 2;
 }
 
 .buttonSurface {
