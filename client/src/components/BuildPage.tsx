@@ -189,6 +189,17 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
         if (destination.droppableId === source.droppableId && source.index === destination.index) {
             return;
         }
+        if (destination.droppableId === 'sellArea') {
+            const elements = source.droppableId === 'equation' ? [...equationData] : [...inventoryData];
+            elements.splice(source.index, 1);
+            if (source.droppableId === 'equation') {
+                setequationData(elements);
+            } else {
+                setinventoryData(elements);
+            }
+            socket.emit('sellTile', roomId);
+            return;
+        }
         if (destination.droppableId === source.droppableId) { //same list
             const elements = source.droppableId === 'equation' ? [...equationData] : [...inventoryData]
             const [removed] = elements.splice(source.index, 1)

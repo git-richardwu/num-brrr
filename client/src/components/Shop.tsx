@@ -4,6 +4,7 @@ import { useSocket } from '../context';
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/scale.css';
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 
 interface ItemProps {
    itemID: string;
@@ -65,7 +66,6 @@ const Shop: React.FC<ShopProps> = ({ style, wares, coinCheck, roomId, relicCount
       'legendary': '#FDB833'
    }
 
-
    return (
       <div style={style}>
          {wares.map((item, index) => (
@@ -82,6 +82,32 @@ const Shop: React.FC<ShopProps> = ({ style, wares, coinCheck, roomId, relicCount
             </Tippy>
 
          ))}
+         <Droppable droppableId={"sellArea"} direction="horizontal">
+            {provided => (
+               <div ref={provided.innerRef} {...provided.droppableProps} style={{
+                  padding: '10px',
+                  width: '110px',
+                  height: '110px',
+                  display: 'flex',
+                  marginLeft: "20px",
+                  marginTop: '20px',
+                  backgroundColor: '#FBEEE0',
+                  textAlign: 'center',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  fontSize: 30,
+                  color: '#D77A61',
+                  border: 'dashed 3px #22577A',
+                  borderRadius: '10px', zIndex: 2
+               }}>
+                  <div style={{
+                     width: '110px',
+                     height: '110px', position: 'absolute'
+                  }}>drag here to sell</div>{provided.placeholder}
+               </div>
+            )}
+         </Droppable>
+
          <div className='bg-text'>SHOP</div>
       </div>
    )

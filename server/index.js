@@ -388,6 +388,17 @@ io.on("connection", (socket) => {
             console.log('Error message:', error);
         }
     });
+    socket.on('sellTile', (roomId) => {
+        try {
+            const player = rooms[roomId].find(p => p.id === socket.id)
+            if (player) {
+                player.coins += 1;
+                io.to(player.id).emit('updateCoinCount', player.coins);
+            }
+        } catch (error) {
+            console.log('Error message:', error);
+        }
+    })
 
     socket.on('updateRelicOrder', (roomId, updatedRelicOrder) => {
         try {
