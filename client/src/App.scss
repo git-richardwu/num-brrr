@@ -1,5 +1,5 @@
 //@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Peralta&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gluten:wght@700&display=swap');
 
 $antiFlash: #ECECEC;
 $charcoal: #394053;
@@ -15,7 +15,7 @@ h1 {
 
 body {
   margin: 0;
-  font-family: 'Peralta';
+  font-family: 'Gluten';
   font-size: 36px;
   text-align: center;
   background: $antiFlash;
@@ -31,7 +31,7 @@ body {
 button {
   background-color: $charcoal;
   color: $antiFlash;
-  font-family:'Peralta';
+  font-family:'Gluten';
   margin: 5px;
   padding: 10px;
   font-size: 20px;
@@ -41,7 +41,7 @@ button {
 }
 
 input {
-  font-family: 'Peralta';
+  font-family: 'Gluten';
   color: $charcoal;
   padding: 12px 20px;
   border: 2px solid $vistaBlue;

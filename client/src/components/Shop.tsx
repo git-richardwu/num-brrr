@@ -95,7 +95,7 @@ const Shop: React.FC<ShopProps> = ({ style, wares, coinCheck, roomId, relicCount
                   textAlign: 'center',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  fontSize: 30,
+                  fontSize: 29,
                   color: '#D77A61',
                   border: 'dashed 3px #22577A',
                   borderRadius: '10px', zIndex: 2

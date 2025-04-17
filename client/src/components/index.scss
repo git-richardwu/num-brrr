@@ -1,7 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Overpass&display=swap');
+
 $antiFlash: #ECECEC;
 $red: #F78888;
 $green: #97D8B2;
 $charcoal: #394053;
+
+.instructions {
+    font-family: "Overpass", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: "normal";
+    font-size: "17px";
+}
 
 .dropArea {
     position: relative;
@@ -216,6 +226,7 @@ h5 {
     margin: 20px;
     top: 0;
     right: 0;
+    z-index: 3;
 }
 
 .glossBox {
@@ -223,7 +234,7 @@ h5 {
     border: 2px solid $charcoal;
     border-radius: 10px;
     min-width: 1400px;
-    padding: 10px;
+    padding: 25px;
     transition: opacity 0.5s ease-in-out;
 }
 

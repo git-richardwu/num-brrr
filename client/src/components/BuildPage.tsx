@@ -300,7 +300,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                         position: 'relative', display: 'flex', flexWrap: 'wrap', padding: '10px', minHeight: '110px', backgroundColor: isValid ? '#97D8B2' : '#F78888',
                         margin: '10px', borderRadius: '10px', transition: '0.5s', pointerEvents: isDisabled ? 'none' : 'auto', 'opacity': isDisabled ? 0.5 : 1
                     }}
-                        list={equationData} backgroundText={"EQUATION"} prefix={"E"} slotCount={[]} />
+                        list={equationData} backgroundText={"EXPRESSION"} prefix={"E"} slotCount={[]} />
                 </motion.div>
                 <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ gridRow: "2 / 3", gridColumn: "1 / 2" }}>
                     <Shop style={{
