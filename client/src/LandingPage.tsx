@@ -63,6 +63,10 @@ export default function LandingPage() {
     setPopUpDetails(null);
   }
 
+  function displayHowTo() {
+    navigate(`/howtoplay`);
+  }
+
   return (
     <div className="App">
       {popUpDetails && <PopUp onClose={closePopUp} message={popUpDetails} />}
@@ -71,12 +75,16 @@ export default function LandingPage() {
         <button disabled={isDisabled} className={`${isDisabled ? 'disabled' : ''}`} onClick={matchMake}>{buttonText}</button>
       </motion.div>
       <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }}>
+        <button onClick={displayHowTo}>How to Play</button>
+      </motion.div>
+      <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.5, type: spring }} animate={{ opacity: 1, scale: 1 }}>
         <button onClick={createRoom}>Create Private Room</button>
       </motion.div>
       <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }}>
         <input onChange={(e) => setRoomId(e.target.value)} placeholder='Room Code' />
         <button onClick={joinRoom}>Join Room</button>
       </motion.div>
+      
     </div>
   );
 }
