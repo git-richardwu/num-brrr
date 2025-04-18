@@ -103,6 +103,8 @@ const CalculationPage: React.FC<RoundDetails> = ({ stats, changeGameState, recei
       <div>
          <div className='pageHeader'>
             RESULTS
+         </div>
+         <div className='timerStyle'>
             <Timer timeLimit={10} sendCompleteStatus={handleTimerCallBack} />
          </div>
 
