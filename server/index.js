@@ -443,8 +443,8 @@ io.on("connection", (socket) => {
     })
 
     socket.on('payment', (roomId, amount) => {
-        const player = rooms[roomId].find(p => p.id === socket.id);
         try {
+            const player = rooms[roomId].find(p => p.id === socket.id);
             if (player && typeof amount === 'number') {
                 if (player.coins >= amount) {
                     player.coins -= amount;
@@ -457,8 +457,8 @@ io.on("connection", (socket) => {
     })
 
     socket.on('pendingPurchase', (roomId, item, disableIndex) => {
-        const player = rooms[roomId].find(p => p.id === socket.id);
         try {
+            const player = rooms[roomId].find(p => p.id === socket.id);
             if (item.cost > player.coins) {
                 io.to(player.id).emit('createErrorMsg', "Insufficient 🪙s!");
                 return;
