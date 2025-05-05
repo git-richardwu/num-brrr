@@ -1,6 +1,5 @@
 //@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Gluten:wght@700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 $antiFlash: #ECECEC;
 $charcoal: #394053;
 $vistaBlue: #89AAE6;
@@ -15,7 +14,7 @@ h1 {
 
 body {
   margin: 0;
-  font-family: 'Gluten';
+  font-family: 'Jua';
   font-size: 36px;
   text-align: center;
   background: $antiFlash;
@@ -31,7 +30,7 @@ body {
 button {
   background-color: $charcoal;
   color: $antiFlash;
-  font-family:'Gluten';
+  font-family:'Jua';
   margin: 5px;
   padding: 10px;
   font-size: 20px;
@@ -41,8 +40,10 @@ button {
 }
 
 input {
-  font-family: 'Gluten';
+  font-family: 'Jua';
   color: $charcoal;
+  font-size:  20px;
+  width: 100px;
   padding: 12px 20px;
   border: 2px solid $vistaBlue;
   border-radius: 4px;
