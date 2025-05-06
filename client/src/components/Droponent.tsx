@@ -20,9 +20,10 @@ interface DroponentProps {
     backgroundText: string;
     prefix: string;
     slotCount: string[];
+    tileCap: number;
 }
 
-const Droponent: React.FC<DroponentProps> = ({ dropID, style, list, backgroundText, prefix, slotCount }) => {
+const Droponent: React.FC<DroponentProps> = ({ dropID, style, list, backgroundText, prefix, slotCount, tileCap }) => {
 
     function typeGuard(checkThis: propOrNum): checkThis is ItemProps[] {
         return typeof checkThis[0] === 'object';
@@ -43,12 +44,18 @@ const Droponent: React.FC<DroponentProps> = ({ dropID, style, list, backgroundTe
                         })}
                         {provided.placeholder}
                     </div>}
-
-                    <div className="position" >
+                    {slotCount.length !== 0 ?
+                    <div className="tab">
                         {slotCount.map((item, index) => (
                             <div className="square" key={`${item}-${index}`}>{item}</div>
                         ))}
+                    </div> :
+                    <div className="tab">
+                        {Array.from({length: tileCap}).fill(" ").map((item, index) => (
+                            <div className="emptySquare" key={`empty-${item}-${index}`}></div>
+                        ))}
                     </div>
+                    }
                     <div className="bg-text">{backgroundText}</div>
                 </div>
             )}

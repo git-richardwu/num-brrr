@@ -135,10 +135,10 @@ const CombatPage: React.FC<combatProps> = ({ equation, rolls, opponentVariables,
                     <div>assign your variables and sabotage one of your <span style={{color: '#F78888'}}>opponent's!</span></div>
                     <br />
                     <Droponent dropID={"slots"} style={{
-                        position: 'relative', display: 'flex', padding: '10px', minHeight: '110px', backgroundColor: '#89AAE6',
-                        margin: '10px', borderRadius: '10px'
-                    }}
-                        list={randomRolls} backgroundText={"ASSIGN"} prefix={"D"} slotCount={uniqueVariables} />
+                            position: 'relative', display: 'flex', padding: '10px', minHeight: '110px', backgroundColor: '#89AAE6',
+                            margin: '10px', borderRadius: '10px'
+                        }}
+                        list={randomRolls} backgroundText={"ASSIGN"} prefix={"D"} slotCount={uniqueVariables} tileCap={0} />
                     <button onClick={confirmSelection} disabled={isDisabled} className={`${isDisabled ? 'disabled' : ''}`}>{buttonMsg}</button>
                 </motion.div>
             ) :

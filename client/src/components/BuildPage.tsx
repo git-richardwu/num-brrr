@@ -81,9 +81,18 @@ const levelWeights: levelWeightType = {
     },
 }
 
+const expressionLimit: { [key: number]: number } = {
+        1: 7,
+        2: 8,
+        3: 10,
+        4: 12,
+        5: 14,
+}
+
 const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, opEquation, opReceipt, coins, health, sendDataToGame, roomId, progress, level, cap, triggerError }) => {
     const { socket } = useSocket();
     const [equationData, setequationData] = useState<ItemProps[]>(content);
+    const [equationLimit, setequationLimit] = useState<number>(content.length);
     const [previewEquation, setPreviewEquation] = useState<string>('');
     const [healthData, setHealthData] = useState<number>(health)
     const [inventoryData, setinventoryData] = useState<ItemProps[]>(inventory);
@@ -150,7 +159,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             updated += " ❌";
         }
         setPreviewEquation(updated);
-    }, [equationData, isValid])
+    }, [equationData, isValid, level])
 
     useEffect(() => { //track equation validity
         const temp = equationData.map(item => item.name);
@@ -223,8 +232,8 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             setinventoryData(updatedInventory);
         }
         if (source.droppableId === 'inventory' && destination.droppableId === 'equation') {
-            if (equationData.length >= 14) {
-                triggerError("Max Equation Size Reached!");
+            if (equationData.length >= expressionLimit[level]) {
+                triggerError("Max Equation Size Reached!" + " Level up to get more slots!");
                 return;
             }
             const updatedInventory = [...inventoryData];
@@ -233,6 +242,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
             updatedEquation.splice(destination.index, 0, removed);
             setequationData(updatedEquation);
             setinventoryData(updatedInventory);
+            setequationLimit(updatedEquation.length)
         }
     };
 
@@ -300,7 +310,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                         position: 'relative', display: 'flex', flexWrap: 'wrap', padding: '10px', minHeight: '110px', backgroundColor: isValid ? '#97D8B2' : '#F78888',
                         margin: '10px', borderRadius: '10px', transition: '0.5s', pointerEvents: isDisabled ? 'none' : 'auto', 'opacity': isDisabled ? 0.5 : 1
                     }}
-                        list={equationData} backgroundText={"EXPRESSION"} prefix={"E"} slotCount={[]} />
+                        list={equationData} backgroundText={"EXPRESSION"} prefix={"E"} slotCount={[]} tileCap={expressionLimit[level]}/>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, scale: 0 }} transition={{ duration: 0.6, type: spring }} animate={{ opacity: 1, scale: 1 }} style={{ gridRow: "2 / 3", gridColumn: "1 / 2" }}>
                     <Shop style={{
@@ -341,7 +351,7 @@ const BuildPage: React.FC<InventoryInterface> = ({ content, inventory, relics, o
                         position: 'relative', display: 'flex', flexWrap: 'wrap', padding: '10px', minHeight: '110px', backgroundColor: '#F3B700',
                         margin: '10px', borderRadius: '10px', pointerEvents: isDisabled ? 'none' : 'auto', 'opacity': isDisabled ? 0.5 : 1
                     }}
-                        list={inventoryData} backgroundText={"INVENTORY"} prefix={"I"} slotCount={[]} />
+                        list={inventoryData} backgroundText={"INVENTORY"} prefix={"I"} slotCount={[]} tileCap={0}/>
                 </motion.div>
             </div>
             <button onClick={submitEquation} disabled={isDisabled} className={`${isDisabled || !isValid ? 'disabled' : ''}`}>{buttonMsg}</button>
